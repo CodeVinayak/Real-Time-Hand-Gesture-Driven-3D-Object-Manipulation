@@ -2,6 +2,8 @@ import cv2
 import mediapipe as mp
 from pynput.keyboard import Controller as KeyboardController, Key
 import time
+import pyautogui
+
 
 # Initialize Mediapipe hands module
 mp_drawing = mp.solutions.drawing_utils
@@ -99,6 +101,12 @@ with mp_hands.Hands(
                 keyboard.release(Key.down)
                 keyboard.release(Key.alt)
                 action_text = "Down Rotation"
+            elif fingerCount == 5:
+                pyautogui.hscroll(+10)
+                action_text = "Zoom In"
+            elif fingerCount == 6:
+                pyautogui.hscroll(-10)
+                action_text = "Zoom out"
             else:
                 action_text = "No Action"
 

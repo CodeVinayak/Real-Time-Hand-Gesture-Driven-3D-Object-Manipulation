@@ -1,5 +1,9 @@
 import cv2
 import mediapipe as mp
+# from pynput.keyboard import Controller as KeyboardController
+from pynput.keyboard import Controller as KeyboardController, Key
+
+import time
 
 # Initialize Mediapipe hands module
 mp_drawing = mp.solutions.drawing_utils
@@ -7,6 +11,10 @@ mp_hands = mp.solutions.hands
 
 # For webcam input:
 cap = cv2.VideoCapture(0)
+
+keyboard = KeyboardController()
+
+# ...
 
 with mp_hands.Hands(
     model_complexity=0,
@@ -65,6 +73,32 @@ with mp_hands.Hands(
                     mp_hands.HAND_CONNECTIONS,
                     landmark_drawing_spec=mp_drawing.DrawingSpec(color=(0, 0, 255), thickness=2, circle_radius=2),
                     connection_drawing_spec=mp_drawing.DrawingSpec(color=(255, 255, 255), thickness=2))
+
+            # Perform key press based on raised finger count
+            if fingerCount == 1:
+                keyboard.press(Key.alt)
+                keyboard.press(Key.right)
+                time.sleep(0.1)
+                keyboard.release(Key.right)
+                keyboard.release(Key.alt)
+            elif fingerCount == 2:
+                keyboard.press(Key.alt)
+                keyboard.press(Key.left)
+                time.sleep(0.1)
+                keyboard.release(Key.left)
+                keyboard.release(Key.alt)
+            elif fingerCount == 3:
+                keyboard.press(Key.alt)
+                keyboard.press(Key.up)
+                time.sleep(0.1)
+                keyboard.release(Key.up)
+                keyboard.release(Key.alt)
+            elif fingerCount == 4:
+                keyboard.press(Key.alt)
+                keyboard.press(Key.down)
+                time.sleep(0.1)
+                keyboard.release(Key.down)
+                keyboard.release(Key.alt)
 
         # Display the count of raised fingers
         height, width, _ = image.shape

@@ -15,7 +15,10 @@ cap.set(4, 720)
 
 # Function to perform key press based on finger count
 def perform_key_press(finger_count):
-    if finger_count == 2:
+    if finger_count == 1:
+         # Press Alt + Right arrow key when 1 fingers are detected
+        keyboard.press_and_release("alt+right")
+    elif finger_count == 2:
         # Press Alt + Left arrow key when 2 fingers are detected
         keyboard.press_and_release("alt+left")
     elif finger_count == 3:

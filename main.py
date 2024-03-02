@@ -1,71 +1,73 @@
 import cv2
 import mediapipe as mp
-import keyboard
-import json
 
-# Set up Mediapipe Hand module
 mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
-hands = mp_hands.Hands()
 
-# Set up webcam
+# For webcam input:
 cap = cv2.VideoCapture(0)
-cap.set(3, 1280)
-cap.set(4, 720)
+with mp_hands.Hands(
+    model_complexity=0,
+    min_detection_confidence=0.5,
+    min_tracking_confidence=0.5) as hands:
+    
+    while cap.isOpened():
+        success, image = cap.read()
+        if not success:
+            print("Unable to capture a frame from the camera.")
+            continue
 
-# Function to perform key press based on finger count
-def perform_key_press(finger_count):
-    if finger_count == 1:
-         # Press Alt + Right arrow key when 1 fingers are detected
-        keyboard.press_and_release("alt+right")
-    elif finger_count == 2:
-        # Press Alt + Left arrow key when 2 fingers are detected
-        keyboard.press_and_release("alt+left")
-    elif finger_count == 3:
-        # Press Alt + Up arrow key when 3 fingers are detected
-        keyboard.press_and_release("alt+up")
-    elif finger_count == 4:
-        # Press Alt + Down arrow key when 4 fingers are detected
-        keyboard.press_and_release("alt+down")
+        image = cv2.flip(image, 1)
+        image.flags.writeable = False
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        results = hands.process(image)
+        image.flags.writeable = True
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
-while cap.isOpened():
-    success, image = cap.read()
-    if not success:
-        print("Ignoring empty camera frame.")
-        continue
+        fingerCount = 0
 
-    # Flip the image horizontally for a later selfie-view display
-    image = cv2.flip(image, 1)
-    h, w, _ = image.shape
+        if results.multi_hand_landmarks:
+            for hand_landmarks in results.multi_hand_landmarks:
+                handIndex = results.multi_hand_landmarks.index(hand_landmarks)
+                handLabel = results.multi_handedness[handIndex].classification[0].label
 
-    # Convert the BGR image to RGB
-    rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                handLandmarks = []
 
-    # Process the image and detect hands
-    results = hands.process(rgb_image)
+                for landmarks in hand_landmarks.landmark:
+                    handLandmarks.append([landmarks.x, landmarks.y])
 
-    finger_count = 0  # Variable to store the number of fingers
+                if handLabel == "Left" and handLandmarks[4][0] > handLandmarks[3][0]:       # Left Thumb
+                    fingerCount += 1
+                elif handLabel == "Right" and handLandmarks[4][0] < handLandmarks[3][0]:    # Right Thumb
+                    fingerCount += 1
 
-    if results.multi_hand_landmarks:
-        for hand_landmarks in results.multi_hand_landmarks:
-            # Count the number of extended fingers
-            finger_count = sum([1 for lm in hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP:] if lm.y < hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_DIP].y])
+                if handLandmarks[8][1] < handLandmarks[6][1]:       # Left & Right Index finger
+                    fingerCount += 1
+                if handLandmarks[12][1] < handLandmarks[10][1]:     # Left & Right Middle finger
+                    fingerCount += 1
+                if handLandmarks[16][1] < handLandmarks[14][1]:     # Left & Right Ring finger
+                    fingerCount += 1
+                if handLandmarks[20][1] < handLandmarks[18][1]:     # Left & Right Pinky
+                    fingerCount += 1
 
-            # Draw hand landmarks and finger count on the image
-            mp_drawing.draw_landmarks(image, hand_landmarks, mp_hands.HAND_CONNECTIONS)
-            cv2.putText(image, f"Fingers: {finger_count}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+                # Set the color to red and decrease the dot size
+                mp_drawing.draw_landmarks(
+                    image,
+                    hand_landmarks,
+                    mp_hands.HAND_CONNECTIONS,
+                    landmark_drawing_spec=mp_drawing.DrawingSpec(color=(0, 0, 255), thickness=2, circle_radius=2),
+                    connection_drawing_spec=mp_drawing.DrawingSpec(color=(255, 255, 255), thickness=2))
 
-            # Perform key press based on finger count
-            perform_key_press(finger_count)
+        height, width, _ = image.shape
+        text_position_label = ((width - cv2.getTextSize("No. of raised fingers:", cv2.FONT_HERSHEY_SIMPLEX, 0.7, 2)[0][0]) // 2, 40)
+        text_position_count = ((width - cv2.getTextSize(str(fingerCount), cv2.FONT_HERSHEY_SIMPLEX, 1.5, 4)[0][0]) // 2, 95)
 
-    # Display the image
-    image = cv2.resize(image, (0, 0), None, 0.5, 0.5)
-    cv2.imshow("Hand Tracking", image)
+        cv2.putText(image, "No. of raised fingers:", text_position_label, cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+        cv2.putText(image, str(fingerCount), text_position_count, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 4)
 
-    # Break the loop when 'q' key is pressed
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+        cv2.imshow("Raised Finger Counter", image)
+        if cv2.waitKey(5) & 0xFF == 27:
+            break
 
-# Release the webcam and close all windows
 cap.release()
 cv2.destroyAllWindows()

@@ -1,8 +1,6 @@
 import cv2
 import mediapipe as mp
-# from pynput.keyboard import Controller as KeyboardController
 from pynput.keyboard import Controller as KeyboardController, Key
-
 import time
 
 # Initialize Mediapipe hands module
@@ -13,8 +11,6 @@ mp_hands = mp.solutions.hands
 cap = cv2.VideoCapture(0)
 
 keyboard = KeyboardController()
-
-# ...
 
 with mp_hands.Hands(
     model_complexity=0,
@@ -81,32 +77,40 @@ with mp_hands.Hands(
                 time.sleep(0.1)
                 keyboard.release(Key.right)
                 keyboard.release(Key.alt)
+                action_text = "Right Rotation"
             elif fingerCount == 2:
                 keyboard.press(Key.alt)
                 keyboard.press(Key.left)
                 time.sleep(0.1)
                 keyboard.release(Key.left)
                 keyboard.release(Key.alt)
+                action_text = "Left Rotation"
             elif fingerCount == 3:
                 keyboard.press(Key.alt)
                 keyboard.press(Key.up)
                 time.sleep(0.1)
                 keyboard.release(Key.up)
                 keyboard.release(Key.alt)
+                action_text = "Up Rotation"
             elif fingerCount == 4:
                 keyboard.press(Key.alt)
                 keyboard.press(Key.down)
                 time.sleep(0.1)
                 keyboard.release(Key.down)
                 keyboard.release(Key.alt)
+                action_text = "Down Rotation"
+            else:
+                action_text = "No Action"
 
-        # Display the count of raised fingers
-        height, width, _ = image.shape
-        label_position = ((width - cv2.getTextSize("No. of raised fingers:", cv2.FONT_HERSHEY_SIMPLEX, 0.7, 2)[0][0]) // 2, 40)
-        count_position = ((width - cv2.getTextSize(str(fingerCount), cv2.FONT_HERSHEY_SIMPLEX, 1.5, 4)[0][0]) // 2, 95)
+            # Display the count of raised fingers and action text on the image
+            height, width, _ = image.shape
+            label_position = ((width - cv2.getTextSize("No. of raised fingers:", cv2.FONT_HERSHEY_SIMPLEX, 0.7, 2)[0][0]) // 2, 40)
+            count_position = ((width - cv2.getTextSize(str(fingerCount), cv2.FONT_HERSHEY_SIMPLEX, 1.5, 4)[0][0]) // 2, 95)
+            action_position = ((width - cv2.getTextSize(action_text, cv2.FONT_HERSHEY_SIMPLEX, 0.7, 2)[0][0]) // 2, 140)
 
-        cv2.putText(image, "No. of raised fingers:", label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
-        cv2.putText(image, str(fingerCount), count_position, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 4)
+            cv2.putText(image, "No. of raised fingers:", label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+            cv2.putText(image, str(fingerCount), count_position, cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 4)
+            cv2.putText(image, action_text, action_position, cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
 
         # Display the image
         cv2.imshow("Raised Finger Counter", image)

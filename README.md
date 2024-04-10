@@ -19,7 +19,7 @@ The implementation of the system utilizes the following technologies and platfor
 ## Dataset
 The project uses a publicly available dataset from the GitHub repository KNN Alphabet. This dataset contains labeled hand landmark coordinates for each letter of the American Sign Language (ASL) alphabet, with a total of 24,000 data points.
 
-![Hand Landmarks](Extra/hand_landmarks.png) 
+![Hand Landmarks](Extra/hand-landmarks.png) 
 ![Sign Language Alphabet Charts](Extra/Sign_alphabet_charts.jpg)
 
 ## Implementation Details

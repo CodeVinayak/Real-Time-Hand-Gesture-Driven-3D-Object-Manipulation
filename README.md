@@ -22,6 +22,11 @@ The project uses a publicly available dataset from the GitHub repository KNN Alp
 ![Hand Landmarks](Extra/hand-landmarks.png) 
 ![Sign Language Alphabet Charts](Extra/Sign_alphabet_charts.jpg)
 
+## Demo
+Here's a demo of the real-time hand gesture recognition system in action:
+
+![Demo GIF](https://github.com/CodeVinayak/Real-Time-Hand-Gesture-Driven-3D-Object-Manipulation/blob/e0eeb7ff6c835f450243557580a09586389b87a9/Extra/Demo.gif)
+
 ## Implementation Details
 The implementation of the real-time hand gesture recognition system for 3D object manipulation involves the following key steps:
 1. Initializing the MediaPipe hands object for hand detection and landmark extraction.
